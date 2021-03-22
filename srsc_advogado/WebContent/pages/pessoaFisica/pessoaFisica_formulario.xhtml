@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<p:dialog id="DialogPessoaFisicaForm" widgetVar="FormPessoaFisicaDialog"
+	showEffect="clip" hideEffect="explode"
+	header="Cadastro de Pessoa Fisica" height="600" width="800"
+	closable="false" closeOnEscape="true" resizable="false" dynamic="true"
+	modal="true" position="center" appendToBody="true">
+
+	<h:form id="FormPessoaFisicaForm">
+		<p:toolbar id="pessoaFisicaMenuFormulario" style="width:99%">
+			<f:facet name="left">
+				<p:commandButton id="btnNovoPessoaFisicaForm" icon="adicionar-icon"
+					value="Novo" action="#{pessoaFisicaBean.novoPessoaFisica}"
+					process="@this"
+					update=":FormPessoaFisicaForm :FormPessoaFisicaList"
+					style="margin-right:10px;" />
+
+				<p:commandButton id="btnSalvarPessoaFisica" icon="salvar-icon"
+					value="Salvar" action="#{pessoaFisicaBean.salvar}"
+					oncomplete="if(!args.validationFailed) PF('FormPessoaFisicaDialog').hide()"
+					update=":FormPessoaFisicaForm :FormPessoaFisicaList"
+					style="margin-right:10px;" />
+
+				<p:commandButton id="btnNovoPessoaFisicaCancelar"
+					icon="cancelar-icon" value="Cancelar"
+					action="#{pessoaFisicaBean.novoPessoaFisicaCancelar}"
+					oncomplete="PF('FormPessoaFisicaDialog').hide()" process="@this"
+					update=":FormPessoaFisicaForm :FormPessoaFisicaList" />
+			</f:facet>
+		</p:toolbar>
+		<p:tabView id="GridFormPessoaFisica"
+			rendered="#{pessoaFisicaBean.pessoaFisica != null}">
+			<p:tab title="Dados do Pessoa Fisica">
+				<h:panelGrid columns="2" style="width:99.8%">
+
+					<h:outputText value="Nome: " />
+					<p:inputText value="#{pessoaFisicaBean.pessoaFisica.nome}"
+						size="50">
+						<p:ajax event="blur" update="" />
+					</p:inputText>
+
+					<h:outputText value="CPF: " />
+					<p:inputMask value="#{pessoaFisicaBean.pessoaFisica.documento}"
+						size="50" mask="999.999.999-99" converter="cpfTextConverter" maxlength="14" />
+
+					<h:outputText value="Data da Nascimento: " />
+					<p:calendar value="#{pessoaFisicaBean.pessoaFisica.dataNascimento}"
+						pattern="dd/MM/yyyy" maxdate="#{pessoaFisicaBean.dataAtual}"
+						mask="99/99/9999" maskAutoClear="true" size="10" navigator="true" />
+
+					<h:outputText value="Identidade: " />
+					<p:inputText value="#{pessoaFisicaBean.pessoaFisica.identidade}"
+						size="50" />
+
+					<h:outputText value="Órgão Emissor: " />
+					<p:inputText value="#{pessoaFisicaBean.pessoaFisica.orgoao}"
+						size="50" />
+
+					<h:outputText value="Data da Expedição: " />
+					<p:calendar value="#{pessoaFisicaBean.pessoaFisica.dataExpedicaoIdentidade}"
+						pattern="dd/MM/yyyy" maxdate="#{pessoaFisicaBean.dataAtual}"
+						mask="99/99/9999" maskAutoClear="true" size="10" navigator="true" />
+
+					<h:outputLabel value="Estado da Identidade:" />
+					<p:selectOneMenu
+						value="#{pessoaFisicaBean.pessoaFisica.estadoIdentidade}">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{pessoaFisicaBean.estados}" var="estado"
+							itemLabel="#{estado}" itemValue="#{estado}" />
+					</p:selectOneMenu>
+
+					<h:outputText value="E-Mail: " />
+					<p:inputText value="#{pessoaFisicaBean.pessoaFisica.email}"
+						size="50" />
+
+					<h:outputText value="Profissão: " />
+					<p:autoComplete value="#{pessoaFisicaBean.pessoaFisica.profissao}"
+					completeMethod="#{pessoaFisicaBean.listProfissao}" size="50" rendered="true" />
+
+					<h:outputLabel value="Observação:" />
+					<p:inputTextarea
+						value="#{pessoaFisicaBean.pessoaFisica.observacao}" cols="50"
+						rows="10" />
+				
+				</h:panelGrid>
+			</p:tab>
+			<p:tab title="Endereço">
+				<h:panelGrid columns="2" style="width:99.8%" id="panelGridEndereco">
+
+					<h:outputText value="Cep: " />
+					<h:panelGroup>
+						<p:autoComplete id="cep" value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep}"
+							completeMethod="#{pessoaFisicaBean.listCeps}" size="20" maxResults="5" minQueryLength="3"
+							var="cep" itemValue="#{cep}" itemLabel="#{cep.cep}" converter="cepConverter" rendered="true">
+							
+							<p:column headerText="Cep:" style="width:100px">
+								<h:outputLabel value="#{cep.cep}" />
+							</p:column>
+		
+							<p:column headerText="UF:">
+								<h:outputLabel value="#{cep.estado}" />
+							</p:column>
+		
+							<p:column headerText="Cidade:">
+								<h:outputLabel value="#{cep.cidade.nome}" />
+							</p:column>
+		
+							<p:column headerText="Bairro:">
+								<h:outputLabel value="#{cep.bairro.nome}" />
+							</p:column>
+		
+							<p:column headerText="Logradouro:">
+								<h:outputLabel value="#{cep.logradouro.logradouroCompleto}" />
+							</p:column>
+							
+<!-- 							<p:ajax event="itemSelect" update="combo-estados combo-cidades combo-bairros combo-logradouros" /> -->
+<!-- 							<p:ajax event="change" update="combo-estados combo-cidades combo-bairros combo-logradouros" /> -->
+							
+							<p:ajax event="itemSelect" update="panelGridEndereco"
+								listener="#{pessoaFisicaBean.onVerificaCep}" />
+							
+							<p:ajax event="change" update="panelGridEndereco"
+								listener="#{pessoaFisicaBean.onVerificaCep}" />
+						</p:autoComplete>
+						<p:message for="cep" id="msgCep" />
+					</h:panelGroup>
+
+					<h:outputLabel value="Estado:" />
+					<p:selectOneMenu id="combo-estados"
+						value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.estado}" filter="true">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+							<f:selectItems value="#{pessoaFisicaBean.estados}" var="estado"
+								itemLabel="#{estado}" itemValue="#{estado}" />
+						<p:ajax event="change" update="combo-cidades" />
+					</p:selectOneMenu>
+
+					<h:outputText value="Cidade: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="combo-cidades"
+							value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.cidade}"
+							disabled="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.estado == null}"
+							filter="true" converter="cidadeConverter">
+							<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+								<f:selectItems value="#{pessoaFisicaBean.cidadesDoEstado}"
+									var="cidade" itemLabel="#{cidade.nome}" itemValue="#{cidade}">
+								</f:selectItems>
+							<p:ajax event="change" update="combo-bairros" />
+						</p:selectOneMenu>
+						<p:commandButton icon="atualizar-icon" update="combo-cidades" />
+					</h:panelGroup>
+ 
+					<h:outputText value="Bairro: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="combo-bairros"
+							value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.bairro}"
+							disabled="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.cidade.id == null}" filter="true"
+							converter="bairroConverter">
+							<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+								<f:selectItems value="#{pessoaFisicaBean.bairrosDaCidade}"
+									var="bairro" itemLabel="#{bairro.nome}" itemValue="#{bairro}">
+									
+								</f:selectItems>
+							<p:ajax event="change" update="combo-logradouros" />
+						</p:selectOneMenu>
+						<p:commandButton icon="atualizar-icon" update="combo-bairros" />
+					</h:panelGroup>
+
+					<h:outputText value="Logradouro: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="combo-logradouros"
+							value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.logradouro}"
+							disabled="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).cep.bairro.id == null}" filter="true"
+							converter="logradouroConverter">
+							<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+							<f:selectItems value="#{pessoaFisicaBean.logradourosDoBairro}"
+								var="logradouro" itemLabel="#{logradouro.logradouroCompleto}"
+								itemValue="#{logradouro}" />
+						</p:selectOneMenu>
+						<p:commandButton icon="atualizar-icon" update="combo-logradouros" />
+					</h:panelGroup>
+
+					<h:outputText value="Número: " />
+					<p:inputText
+						value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).numero}"
+						size="50" />
+
+					<h:outputText value="Complemento: " />
+					<p:inputText
+						value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).complemento}"
+						size="50" />
+
+					<h:outputLabel value="Referencia:" />
+						<p:inputTextarea value="#{pessoaFisicaBean.pessoaFisica.enderecos.get(0).referencia}" cols="50"
+							rows="10" />
+
+					</h:panelGrid>
+			</p:tab>
+		</p:tabView>
+	</h:form>
+</p:dialog>
+</html>

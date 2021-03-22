@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<p:panel id="PanelListFase" header="Fases Cadastras" style="height:100%">
+	<h:form id="FormFaseList">
+		<p:growl />
+		<p:toolbar style="width:99.4%" id="toolbar">
+			<p:toolbarGroup align="left">
+				<p:commandButton id="btnNovoFaseList" icon="adicionar-icon"
+					value="Nova" action="#{faseBean.novoFase}" process="@this"
+					update=":FormFaseList :FormFaseForm"
+					oncomplete="PF('FormFaseDialog').show()">
+				</p:commandButton>
+
+				<p:commandButton icon="editar-icon" action="#{faseBean.editar}"
+					oncomplete="if (#{faseBean.fase != null}) {PF('FormFaseDialog').show()}"
+					update=":FormFaseList :FormFaseForm" />
+
+				<p:commandButton icon="excluir-icon"
+					oncomplete="if (#{faseBean.fase != null}) {PF('confirmarExclusaoDialog').show()}"
+					update=":FormFaseList" />
+			</p:toolbarGroup>
+
+			<p:toolbarGroup align="right">
+			</p:toolbarGroup>
+		</p:toolbar>
+
+		<p:dataTable id="tabelaFases" widgetVar="fasesTable"
+			value="#{faseBean.fases}" var="fase" paginator="true"
+			rows="15"
+			paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			currentPageReportTemplate="Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages}"
+			sortMode="multiple"
+			tableStyleClass="table table-bordered table-hover"
+			emptyMessage="Nenhuma fase encontrada!"
+			filteredValue="#{faseBean.fasesFiltrados}"
+			rowsPerPageTemplate="15, 25, 50, 100, 150, *" resizableColumns="true"
+			scrollable="true" scrollWidth="100%" liveScroll="true"
+			rowIndexVar="rowIndex"
+			rowStyleClass="#{(rowIndex mod 2) eq 0 ? 'first-row' : 'second-row'}"
+			selection="#{faseBean.fase}" rowKey="#{fase.id}"
+			selectionMode="single" reflow="true" draggableColumns="true">
+
+			<p:ajax event="rowSelect" update=":FormFaseList:toolbar" />
+
+			<p:ajax event="rowDblselect"
+				listener="#{faseBean.onRowDblselect}"
+				oncomplete="PF('FormFaseDialog').show()"
+				update=":FormFaseList :FormFaseForm" global="false" />
+
+			<f:facet name="header">
+				<h:panelGroup class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(faseBean.fases)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="paginatorTopLeft">
+				<p:outputPanel>
+					<h:outputText value="Pesquisar:" />
+					<p:inputText id="globalFilter"
+						onkeyup="PF('fasesTable').filter()" style="width:150px"
+						placeholder="Insira a palavra-chave" />
+				</p:outputPanel>
+			</f:facet>
+
+			<f:facet name="paginatorTopRight">
+				<p:commandButton icon="lupa-icon" id="optionDataTables"
+					onclick="PF('fasesTable').clearFilters()"
+					update=":FormFaseList" value="Limpar" />
+			</f:facet>
+
+			<f:facet name="paginatorBottomRight">
+				<h:panelGroup class="PanelToggle">
+					<p:commandButton id="toggler" type="button" value="Colunas"
+						icon="ui-icon-calculator" />
+					<p:columnToggler datasource="tabelaFases" trigger="toggler">
+						<p:ajax event="toggle" listener="#{faseBean.onToggle}" />
+					</p:columnToggler>
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="footer">
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_xls.png"
+						width="36" />
+					<p:dataExporter type="xls" target="tabelaFases"
+						fileName="fases" />
+				</h:commandLink>
+
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_pdf.png"
+						width="36" />
+					<p:dataExporter type="pdf" target="tabelaFases"
+						fileName="fases" encoding="iso-8859-1" />
+				</h:commandLink>
+
+				<h:panelGroup id="totalRegistro" class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(faseBean.fases)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<!-- INICIO DAS COLUNAS -->
+
+			<p:column headerText="Nome" sortBy="#{fase.nome}"
+				filterBy="#{fase.nome}" filterMatchMode="contains"
+				style="width:300px;" visible="#{faseBean.listToggle[0]}">
+				<h:outputLabel value="#{fase.nome}" />
+			</p:column>
+
+			<p:column headerText="Sigla" sortBy="#{fase.sigla}"
+				filterBy="#{fase.sigla}" filterMatchMode="contains"
+				style="width:300px;" visible="#{faseBean.listToggle[1]}">
+				<h:outputLabel value="#{fase.sigla}" />
+			</p:column>
+
+			<p:column headerText="Descrição" sortBy="#{fase.descricao}"
+				filterBy="#{fase.descricao}" filterMatchMode="contains"
+				style="width:300px;" visible="#{faseBean.listToggle[2]}">
+				<h:outputLabel value="#{fase.descricao}" />
+			</p:column>
+
+			<p:column headerText="Cadastrado Por" sortBy="#{fase.login.nome}"
+				filterBy="#{fase.login.nome}" filterMatchMode="contains"
+				style="width:300px;" visible="#{faseBean.listToggle[3]}">
+				<h:outputLabel value="#{fase.login.nome}" />
+			</p:column>
+
+			<p:column headerText="Cadastrado Em" sortBy="#{fase.dataCadastro}"
+				filterBy="#{fase.dataCadastro}" filterMatchMode="contains"
+				style="width:300px;" visible="#{faseBean.listToggle[4]}">
+				<h:outputLabel value="#{fase.dataCadastro}">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</h:outputLabel>
+			</p:column>
+			
+			<!-- FIM DAS COLUNAS -->
+		</p:dataTable>
+
+		<p:confirmDialog
+			message="Deseja realmente excluir a cidade #{faseBean.fase.nome}?"
+			widgetVar="confirmarExclusaoDialog">
+			<p:commandButton value="Sim"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				action="#{faseBean.deletar}" update="tabelaFases" />
+
+			<p:commandButton value="Não" action="#{faseBean.faseNulo}"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				update="tabelaFases" />
+		</p:confirmDialog>
+	</h:form>
+</p:panel>
+<style>
+.ui-datatable-header {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-header>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-footer>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer>.PanelToggle {
+	right: 40px;
+	position: absolute;
+}
+
+#toggle {
+	background-color: #666;
+}
+</style>
+</html>

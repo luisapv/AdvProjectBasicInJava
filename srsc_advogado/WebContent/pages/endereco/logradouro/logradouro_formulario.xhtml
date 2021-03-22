@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<p:dialog id="DialogLogradouroForm" widgetVar="FormLogradouroDialog"
+	showEffect="clip" hideEffect="explode" header="Cadastro de Logradouro"
+	height="600" width="800" closable="false" closeOnEscape="true"
+	resizable="false" dynamic="true" modal="true" position="center"
+	appendToBody="true">
+
+	<h:form id="FormLogradouroForm">
+		<p:toolbar id="logradouroMenuFormulario" style="width:99%">
+			<f:facet name="left">
+				<p:commandButton id="btnNovoLogradouroForm" icon="adicionar-icon"
+					value="Novo" action="#{logradouroBean.novoLogradouro}"
+					process="@this" update=":FormLogradouroForm :FormLogradouroList"
+					style="margin-right:10px;" />
+
+				<p:commandButton id="btnSalvarLogradouro" icon="salvar-icon"
+					value="Salvar" action="#{logradouroBean.salvar}"
+					oncomplete="if(!args.validationFailed) PF('FormLogradouroDialog').hide()"
+					update=":FormLogradouroForm :FormLogradouroList"
+					style="margin-right:10px;" />
+
+				<p:commandButton id="btnNovoLogradouroCancelar" icon="cancelar-icon"
+					value="Cancelar" action="#{logradouroBean.novoLogradouroCancelar}"
+					oncomplete="PF('FormLogradouroDialog').hide()" process="@this"
+					update=":FormLogradouroForm :FormLogradouroList" />
+			</f:facet>
+		</p:toolbar>
+		<p:panel header="Dados do Logradouro">
+			<h:panelGrid id="GridFormLogradouro" columns="2" style="width:99.8%"
+				rendered="#{logradouroBean.logradouro != null}">
+
+				<h:outputLabel value="Tipo de Logradouro:" />
+				<p:selectOneMenu value="#{logradouroBean.logradouro.tipoLogradouro}"
+					filter="true">
+					<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+					<f:selectItems value="#{logradouroBean.tipoLogradouros}"
+						var="logradouro" itemLabel="#{logradouro.label}"
+						itemValue="#{logradouro}" />
+				</p:selectOneMenu>
+
+				<h:outputText value="Nome: " />
+				<p:inputText value="#{logradouroBean.logradouro.nome}" size="50" />
+
+				<h:outputLabel value="Estado:" />
+				<p:selectOneMenu
+					value="#{logradouroBean.logradouro.bairro.cidade.estado}"
+					filter="true">
+					<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+					<f:selectItems value="#{logradouroBean.estados}" var="estado"
+						itemLabel="#{estado}" itemValue="#{estado}" />
+					<p:ajax event="change" update="combo-cidades" />
+				</p:selectOneMenu>
+
+				<h:outputText value="Cidade: " />
+				<h:panelGroup>
+					<p:selectOneMenu id="combo-cidades"
+						value="#{logradouroBean.logradouro.bairro.cidade}"
+						disabled="#{logradouroBean.logradouro.bairro.cidade.estado == null}"
+						filter="true" converter="cidadeConverter">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{logradouroBean.cidadesDoEstado}"
+							var="cidade" itemLabel="#{cidade.nome}" itemValue="#{cidade}" />
+						<p:ajax event="change" update="combo-bairros" />
+					</p:selectOneMenu>
+					<p:commandButton icon="atualizar-icon" update="combo-cidades" />
+				</h:panelGroup>
+
+				<h:outputText value="Bairro: " />
+				<h:panelGroup>
+					<p:selectOneMenu id="combo-bairros"
+						value="#{logradouroBean.logradouro.bairro}"
+						disabled="#{logradouroBean.logradouro.bairro.cidade.id == null}"
+						filter="true" converter="bairroConverter">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{logradouroBean.bairrosDaCidade}"
+							var="bairro" itemLabel="#{bairro.nome}" itemValue="#{bairro}" />
+					</p:selectOneMenu>
+					<p:commandButton icon="atualizar-icon" update="combo-bairros" />
+				</h:panelGroup>
+
+			</h:panelGrid>
+		</p:panel>
+	</h:form>
+</p:dialog>
+</html>

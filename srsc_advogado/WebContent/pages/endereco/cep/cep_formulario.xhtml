@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<p:dialog id="DialogCepForm" widgetVar="FormCepDialog" showEffect="clip"
+	hideEffect="explode" header="Cadastro de Cep" height="600" width="800"
+	closable="false" closeOnEscape="true" resizable="false" dynamic="true"
+	modal="true" position="center" appendToBody="true">
+
+	<h:form id="FormCepForm">
+		<p:toolbar id="cepMenuFormulario" style="width:99%">
+			<f:facet name="left">
+				<p:commandButton id="btnNovoCepForm" icon="adicionar-icon"
+					value="Novo" action="#{cepBean.novoCep}" process="@this"
+					update=":FormCepForm :FormCepList" style="margin-right:10px;" />
+
+				<p:commandButton id="btnSalvarCep" icon="salvar-icon" value="Salvar"
+					action="#{cepBean.salvar}"
+					oncomplete="if(!args.validationFailed) PF('FormCepDialog').hide()"
+					update=":FormCepForm :FormCepList" style="margin-right:10px;" />
+
+				<p:commandButton id="btnNovoCepCancelar" icon="cancelar-icon"
+					value="Cancelar" action="#{cepBean.novoCepCancelar}"
+					oncomplete="PF('FormCepDialog').hide()" process="@this"
+					update=":FormCepForm :FormCepList" />
+			</f:facet>
+		</p:toolbar>
+		<p:panel header="Dados do Cep">
+			<h:panelGrid id="GridFormCep" columns="2" style="width:99.8%"
+				rendered="#{cepBean.cep != null}">
+
+				<h:outputText value="Nome: " />
+				<p:inputMask value="#{cepBean.cep.cep}" size="50" mask="99999-999"
+					maxlength="9" />
+
+				<h:outputLabel value="Estado:" />
+				<p:selectOneMenu value="#{cepBean.cep.estado}" filter="true">
+					<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+					<f:selectItems value="#{cepBean.estados}" var="estado"
+						itemLabel="#{estado}" itemValue="#{estado}" />
+					<p:ajax event="change" update="combo-cidades" />
+				</p:selectOneMenu>
+
+				<h:outputText value="Cidade: " />
+				<h:panelGroup>
+					<p:selectOneMenu id="combo-cidades" value="#{cepBean.cep.cidade}"
+						disabled="#{cepBean.cep.estado == null}" filter="true"
+						converter="cidadeConverter">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{cepBean.cidadesDoEstado}" var="cidade"
+							itemLabel="#{cidade.nome}" itemValue="#{cidade}" />
+						<p:ajax event="change" update="combo-bairros" />
+					</p:selectOneMenu>
+					<p:commandButton icon="atualizar-icon" update="combo-cidades" />
+				</h:panelGroup>
+
+				<h:outputText value="Bairro: " />
+				<h:panelGroup>
+					<p:selectOneMenu id="combo-bairros" value="#{cepBean.cep.bairro}"
+						disabled="#{cepBean.cep.cidade.id == null}" filter="true"
+						converter="bairroConverter">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{cepBean.bairrosDaCidade}" var="bairro"
+							itemLabel="#{bairro.nome}" itemValue="#{bairro}" />
+						<p:ajax event="change" update="combo-logradouros" />
+					</p:selectOneMenu>
+					<p:commandButton icon="atualizar-icon" update="combo-bairros" />
+				</h:panelGroup>
+
+				<h:outputText value="Logradouro: " />
+				<h:panelGroup>
+					<p:selectOneMenu id="combo-logradouros"
+						value="#{cepBean.cep.logradouro}"
+						disabled="#{cepBean.cep.bairro.id == null}" filter="true"
+						converter="logradouroConverter">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{cepBean.logradourosDoBairro}"
+							var="logradouro" itemLabel="#{logradouro.logradouroCompleto}"
+							itemValue="#{logradouro}" />
+					</p:selectOneMenu>
+					<p:commandButton icon="atualizar-icon" update="combo-logradouros" />
+				</h:panelGroup>
+
+			</h:panelGrid>
+		</p:panel>
+	</h:form>
+</p:dialog>
+</html>

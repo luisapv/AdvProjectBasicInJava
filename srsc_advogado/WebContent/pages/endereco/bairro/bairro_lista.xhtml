@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<p:panel id="PanelListBairro" header="Bairros Cadastras" style="height:100%">
+	<h:form id="FormBairroList">
+		<p:growl />
+		<p:toolbar style="width:99.4%" id="toolbar">
+			<p:toolbarGroup align="left">
+				<p:commandButton id="btnNovoBairroList" icon="adicionar-icon"
+					value="Nova" action="#{bairroBean.novoBairro}" process="@this"
+					update=":FormBairroList :FormBairroForm"
+					oncomplete="PF('FormBairroDialog').show()">
+				</p:commandButton>
+
+				<p:commandButton icon="editar-icon" action="#{bairroBean.editar}"
+					oncomplete="if (#{bairroBean.bairro != null}) {PF('FormBairroDialog').show()}"
+					update=":FormBairroList :FormBairroForm" />
+
+				<p:commandButton icon="excluir-icon"
+					oncomplete="if (#{bairroBean.bairro != null}) {PF('confirmarExclusaoDialog').show()}"
+					update=":FormBairroList" />
+			</p:toolbarGroup>
+
+			<p:toolbarGroup align="right">
+			</p:toolbarGroup>
+		</p:toolbar>
+
+		<p:dataTable id="tabelaBairros" widgetVar="bairrosTable"
+			value="#{bairroBean.lazyBairroDataTable}" var="bairro" paginator="true"
+			rows="15"
+			paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			currentPageReportTemplate="Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages}"
+			sortMode="multiple"
+			tableStyleClass="table table-bordered table-hover"
+			emptyMessage="Nenhuma bairro encontrada!"
+			filteredValue="#{bairroBean.bairrosFiltrados}"
+			rowsPerPageTemplate="15, 25, 50, 100, 150, *" resizableColumns="true"
+			scrollable="true" scrollWidth="100%" liveScroll="true"
+			rowIndexVar="rowIndex"
+			rowStyleClass="#{(rowIndex mod 2) eq 0 ? 'first-row' : 'second-row'}"
+			rowKey="#{bairro.id}"
+			selectionMode="single" reflow="true" draggableColumns="true">
+
+			<p:ajax event="rowSelect" listener="#{bairroBean.onRowSelect}" update=":FormBairroList:toolbar" />
+
+			<p:ajax event="rowDblselect"
+				listener="#{bairroBean.onRowDblselect}"
+				oncomplete="PF('FormBairroDialog').show()"
+				update=":FormBairroList :FormBairroForm" global="false" />
+
+			<f:facet name="header">
+				<h:panelGroup class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(bairroBean.lazyBairroDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="paginatorTopLeft">
+				<p:outputPanel>
+					<h:outputText value="Pesquisar:" />
+					<p:inputText id="globalFilter"
+						onkeyup="PF('bairrosTable').filter()" style="width:150px"
+						placeholder="Insira a palavra-chave" />
+				</p:outputPanel>
+			</f:facet>
+
+			<f:facet name="paginatorTopRight">
+				<p:commandButton icon="lupa-icon" id="optionDataTables"
+					onclick="PF('bairrosTable').clearFilters()"
+					update=":FormBairroList" value="Limpar" />
+			</f:facet>
+
+			<f:facet name="paginatorBottomRight">
+				<h:panelGroup class="PanelToggle">
+					<p:commandButton id="toggler" type="button" value="Colunas"
+						icon="ui-icon-calculator" />
+					<p:columnToggler datasource="tabelaBairros" trigger="toggler">
+						<p:ajax event="toggle" listener="#{bairroBean.onToggle}" />
+					</p:columnToggler>
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="footer">
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_xls.png"
+						width="36" />
+					<p:dataExporter type="xls" target="tabelaBairros"
+						fileName="bairros" />
+				</h:commandLink>
+
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_pdf.png"
+						width="36" />
+					<p:dataExporter type="pdf" target="tabelaBairros"
+						fileName="bairros" encoding="iso-8859-1" />
+				</h:commandLink>
+
+				<h:panelGroup id="totalRegistro" class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(bairroBean.lazyBairroDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<!-- INICIO DAS COLUNAS -->
+
+			<p:column headerText="Nome Bairro" sortBy="#{bairro.nome}"
+				filterBy="#{bairro.nome}" filterMatchMode="contains"
+				style="width:300px;" visible="#{bairroBean.listToggle[0]}">
+				<h:outputLabel value="#{bairro.nome}" />
+			</p:column>
+
+			<p:column headerText="Cidade/UF" sortBy="#{bairro.cidadeUf}"
+				filterBy="#{bairro.cidadeUf}" filterMatchMode="contains"
+				style="width:300px;" visible="#{bairroBean.listToggle[1]}">
+				<h:outputLabel value="#{bairro.cidadeUf}" />
+			</p:column>
+			
+			<!-- FIM DAS COLUNAS -->
+		</p:dataTable>
+
+		<p:confirmDialog
+			message="Deseja realmente excluir a bairro #{bairroBean.bairro.nome}?"
+			widgetVar="confirmarExclusaoDialog">
+			<p:commandButton value="Sim"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				action="#{bairroBean.deletar}" update="tabelaBairros" />
+
+			<p:commandButton value="Não" action="#{bairroBean.bairroNulo}"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				update="tabelaBairros" />
+		</p:confirmDialog>
+	</h:form>
+</p:panel>
+<style>
+.ui-datatable-header {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-header>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-footer>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer>.PanelToggle {
+	right: 40px;
+	position: absolute;
+}
+
+#toggle {
+	background-color: #666;
+}
+</style>
+</html>

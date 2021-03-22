@@ -1,0 +1,48 @@
+<ui:composition template="/pages/layout/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<ui:define name="titulo">
+	    PDF
+	</ui:define>
+
+	<ui:define name="principal">
+		<h:form enctype="multipart/form-data"
+			style="width: 100%; height:100%;">
+
+			<p:growl />
+			<p:panelGrid columns="1" style="width: 100%;">
+				<h:panelGroup>
+					<p:outputLabel value="Processo:" />
+					<p:inputText value="#{viewPDF.processoString}"
+						style="width: 83%; margin: 0px 20px;" />
+					<p:commandButton value="Pesquisar"
+						action="#{viewPDF.trocarViewPDF}" ajax="false" update="pdf" />
+				</h:panelGroup>
+			</p:panelGrid>
+			<p:media id="pdf" value="#{viewPDF.contentPdf}" height="100%"
+				width="100%" player="pdf">
+   			Seu navegador não pode exibir pdf, clique em <h:outputLink
+					value="#{viewPDF.contentPdf}">Download</h:outputLink> para baixar o pdf.
+					<f:param name="id" value="#{viewPDF.idFile}" />
+				<p:resizable for="pdf" />
+			</p:media>
+		</h:form>
+
+		<style>
+html, body {
+	height: 100%;
+}
+
+#pdf {
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+</style>
+	</ui:define>
+</ui:composition>

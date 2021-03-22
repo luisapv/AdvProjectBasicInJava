@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="malaDireta" pageWidth="612" pageHeight="792" columnWidth="590" leftMargin="11" rightMargin="11" topMargin="35" bottomMargin="0" uuid="b9fe9438-4fac-4478-ab13-85264fec96c5">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Data Adapter "/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="cm"/>
+	<queryString>
+		<![CDATA[select
+p.id, p.nome AS nome_destinatario,
+case
+when e.pessoa <> '' then
+concat_ws(' ', l.tipoLogradouro,
+concat_ws('', l.nome,
+concat_ws(', ', case when e.numero<>null and e.complemento<>null then
+concat_ws(', ',e.numero,' - ',e.complemento) when e.numero<>null and e.complemento=null then
+concat_ws(', ',e.numero) when e.numero=null and e.complemento<>null then
+concat_ws(', ',e.complemento) else '' end,
+concat_ws(', ', b.nome, concat_ws('/', c.nome,
+concat_ws(' - ',c.estado, cep.cep)))))) else '' end as endereco_destinatario,
+
+p.id, p.nome AS nome_remetente,
+case
+  when e.pessoa <> '' then
+  concat_ws(' ', l.tipoLogradouro,
+  concat_ws('', l.nome,
+  concat_ws(', ', case when e.numero<>null and e.complemento<>null then
+  concat_ws(', ',e.numero,' - ',e.complemento) when e.numero<>null and e.complemento=null then
+  concat_ws(', ',e.numero) when e.numero=null and e.complemento<>null then
+  concat_ws(', ',e.complemento) else '' end,
+  concat_ws(', ', b.nome, concat_ws('/', c.nome,
+  concat_ws(' - ',c.estado, cep.cep)))))) else '' end as endereco_remetente
+from pessoafisica as pf
+  left join pessoa as p on p.id=pf.id
+  left join endereco as e on p.id=e.pessoa
+  left join cep on e.cep=cep.id
+  left join cidade as c on cep.cidade=c.id
+  left join bairro as b on cep.bairro=b.id
+  left join logradouro as l on cep.logradouro=l.id]]>
+	</queryString>
+	<field name="endereco_remetente" class="java.lang.String">
+		<fieldDescription><![CDATA[endereco_remetente]]></fieldDescription>
+	</field>
+	<field name="nome_destinatario" class="java.lang.String">
+		<fieldDescription><![CDATA[nome_destinatario]]></fieldDescription>
+	</field>
+	<field name="nome_remetente" class="java.lang.String">
+		<fieldDescription><![CDATA[nome_remetente]]></fieldDescription>
+	</field>
+	<field name="endereco_destinatario" class="java.lang.String">
+		<fieldDescription><![CDATA[endereco_destinatario]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="71" splitType="Stretch">
+			<textField>
+				<reportElement x="320" y="16" width="227" height="55" uuid="7a8c415c-a62d-418e-a19f-6e5cad17fb3d"/>
+				<textFieldExpression><![CDATA[$F{endereco_remetente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="1" width="240" height="15" uuid="c5c007ff-9883-45e4-841b-52654ae636c5"/>
+				<textFieldExpression><![CDATA[$F{nome_destinatario}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="320" y="1" width="227" height="15" uuid="5b174bcc-0cac-4eb3-b00b-96a7a0ad0359"/>
+				<textFieldExpression><![CDATA[$F{nome_remetente}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="16" width="240" height="55" uuid="4e6c5bfb-48a4-41aa-b3c0-a89e727b05d1"/>
+				<textFieldExpression><![CDATA[$F{endereco_destinatario}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

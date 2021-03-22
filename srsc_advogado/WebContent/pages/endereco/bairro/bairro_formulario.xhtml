@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<p:dialog id="DialogBairroForm" widgetVar="FormBairroDialog"
+	showEffect="clip" hideEffect="explode" header="Cadastro de Bairro"
+	height="600" width="800" closable="false" closeOnEscape="true"
+	resizable="false" dynamic="true" modal="true" position="center"
+	appendToBody="true">
+
+	<h:form id="FormBairroForm">
+		<p:toolbar id="bairroMenuFormulario" style="width:99%">
+			<f:facet name="left">
+				<p:commandButton id="btnNovoBairroForm" icon="adicionar-icon"
+					value="Novo" action="#{bairroBean.novoBairro}" process="@this"
+					update=":FormBairroForm :FormBairroList" style="margin-right:10px;" />
+
+				<p:commandButton id="btnSalvarBairro" icon="salvar-icon"
+					value="Salvar" action="#{bairroBean.salvar}"
+					oncomplete="if(!args.validationFailed) PF('FormBairroDialog').hide()"
+					update=":FormBairroForm :FormBairroList" style="margin-right:10px;" />
+
+				<p:commandButton id="btnNovoBairroCancelar" icon="cancelar-icon"
+					value="Cancelar" action="#{bairroBean.novoBairroCancelar}"
+					oncomplete="PF('FormBairroDialog').hide()" process="@this"
+					update=":FormBairroForm :FormBairroList" />
+			</f:facet>
+		</p:toolbar>
+		<p:panel header="Dados do Bairro">
+			<h:panelGrid id="GridFormBairro" columns="2" style="width:99.8%"
+				rendered="#{bairroBean.bairro != null}">
+
+				<h:outputText value="Nome: " />
+				<p:inputText value="#{bairroBean.bairro.nome}" size="50" />
+
+				<h:outputLabel value="Estado:" />
+				<p:selectOneMenu value="#{bairroBean.bairro.cidade.estado}"
+					filter="true">
+					<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+					<f:selectItems value="#{bairroBean.estados}" var="estado"
+						itemLabel="#{estado}" itemValue="#{estado}" />
+					<p:ajax event="change" update="combo-cidades" />
+				</p:selectOneMenu>
+
+				<h:outputText value="Cidade: " />
+				<h:panelGroup>
+					<p:selectOneMenu id="combo-cidades"
+						value="#{bairroBean.bairro.cidade}"
+						disabled="#{bairroBean.bairro.cidade.estado == null}"
+						converter="cidadeConverter" filter="true">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{bairroBean.cidadesDoEstado}" var="cidade"
+							itemLabel="#{cidade.nome}" itemValue="#{cidade}" />
+					</p:selectOneMenu>
+					<p:commandButton icon="atualizar-icon" update="combo-cidades" />
+				</h:panelGroup>
+			</h:panelGrid>
+		</p:panel>
+	</h:form>
+</p:dialog>
+</html>

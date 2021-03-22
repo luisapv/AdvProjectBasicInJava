@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<p:panel id="PanelListLogradouro" header="Logradouros Cadastras" style="height:100%">
+	<h:form id="FormLogradouroList">
+		<p:growl />
+		<p:toolbar style="width:99.4%" id="toolbar">
+			<p:toolbarGroup align="left">
+				<p:commandButton id="btnNovoLogradouroList" icon="adicionar-icon"
+					value="Nova" action="#{logradouroBean.novoLogradouro}" process="@this"
+					update=":FormLogradouroList :FormLogradouroForm"
+					oncomplete="PF('FormLogradouroDialog').show()">
+				</p:commandButton>
+
+				<p:commandButton icon="editar-icon" action="#{logradouroBean.editar}"
+					oncomplete="if (#{logradouroBean.logradouro != null}) {PF('FormLogradouroDialog').show()}"
+					update=":FormLogradouroList :FormLogradouroForm" />
+
+				<p:commandButton icon="excluir-icon"
+					oncomplete="if (#{logradouroBean.logradouro != null}) {PF('confirmarExclusaoDialog').show()}"
+					update=":FormLogradouroList" />
+			</p:toolbarGroup>
+
+			<p:toolbarGroup align="right">
+			</p:toolbarGroup>
+		</p:toolbar>
+
+		<p:dataTable id="tabelaLogradouros" widgetVar="logradourosTable"
+			value="#{logradouroBean.lazyLogradouroDataTable}" var="logradouro" paginator="true"
+			rows="15"
+			paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			currentPageReportTemplate="Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages}"
+			sortMode="multiple"
+			tableStyleClass="table table-bordered table-hover"
+			emptyMessage="Nenhuma logradouro encontrada!"
+			filteredValue="#{logradouroBean.logradourosFiltrados}"
+			rowsPerPageTemplate="15, 25, 50, 100, 150, *" resizableColumns="true"
+			scrollable="true" scrollWidth="100%" liveScroll="true"
+			rowIndexVar="rowIndex"
+			rowStyleClass="#{(rowIndex mod 2) eq 0 ? 'first-row' : 'second-row'}"
+			rowKey="#{logradouro.id}"
+			selectionMode="single" reflow="true" draggableColumns="true">
+
+			<p:ajax event="rowSelect" listener="#{logradouroBean.onRowSelect}" update=":FormLogradouroList:toolbar" />
+
+			<p:ajax event="rowDblselect"
+				listener="#{logradouroBean.onRowDblselect}"
+				oncomplete="PF('FormLogradouroDialog').show()"
+				update=":FormLogradouroList :FormLogradouroForm" global="false" />
+
+			<f:facet name="header">
+				<h:panelGroup class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(logradouroBean.lazyLogradouroDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="paginatorTopLeft">
+				<p:outputPanel>
+					<h:outputText value="Pesquisar:" />
+					<p:inputText id="globalFilter"
+						onkeyup="PF('logradourosTable').filter()" style="width:150px"
+						placeholder="Insira a palavra-chave" />
+				</p:outputPanel>
+			</f:facet>
+
+			<f:facet name="paginatorTopRight">
+				<p:commandButton icon="lupa-icon" id="optionDataTables"
+					onclick="PF('logradourosTable').clearFilters()"
+					update=":FormLogradouroList" value="Limpar" />
+			</f:facet>
+
+			<f:facet name="paginatorBottomRight">
+				<h:panelGroup class="PanelToggle">
+					<p:commandButton id="toggler" type="button" value="Colunas"
+						icon="ui-icon-calculator" />
+					<p:columnToggler datasource="tabelaLogradouros" trigger="toggler">
+						<p:ajax event="toggle" listener="#{logradouroBean.onToggle}" />
+					</p:columnToggler>
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="footer">
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_xls.png"
+						width="36" />
+					<p:dataExporter type="xls" target="tabelaLogradouros"
+						fileName="logradouros" />
+				</h:commandLink>
+
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_pdf.png"
+						width="36" />
+					<p:dataExporter type="pdf" target="tabelaLogradouros"
+						fileName="logradouros" encoding="iso-8859-1" />
+				</h:commandLink>
+
+				<h:panelGroup id="totalRegistro" class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(logradouroBean.lazyLogradouroDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<!-- INICIO DAS COLUNAS -->
+
+			<p:column headerText="Nome Logradouro" sortBy="#{logradouro.nome}"
+				filterBy="#{logradouro.nome}" filterMatchMode="contains"
+				style="width:300px;" visible="#{logradouroBean.listToggle[0]}">
+				<h:outputLabel value="#{logradouro.nome}" />
+			</p:column>
+
+			<p:column headerText="Bairro/Cidade/UF" sortBy="#{logradouro.bairroCidadeUf}"
+				filterBy="#{logradouro.bairroCidadeUf}" filterMatchMode="contains"
+				style="width:300px;" visible="#{logradouroBean.listToggle[1]}">
+				<h:outputLabel value="#{logradouro.bairroCidadeUf}" />
+			</p:column>
+			
+			<!-- FIM DAS COLUNAS -->
+		</p:dataTable>
+
+		<p:confirmDialog
+			message="Deseja realmente excluir a logradouro #{logradouroBean.logradouro.nome}?"
+			widgetVar="confirmarExclusaoDialog">
+			<p:commandButton value="Sim"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				action="#{logradouroBean.deletar}" update="tabelaLogradouros" />
+
+			<p:commandButton value="Não" action="#{logradouroBean.logradouroNulo}"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				update="tabelaLogradouros" />
+		</p:confirmDialog>
+	</h:form>
+</p:panel>
+<style>
+.ui-datatable-header {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-header>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-footer>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer>.PanelToggle {
+	right: 40px;
+	position: absolute;
+}
+
+#toggle {
+	background-color: #666;
+}
+</style>
+</html>

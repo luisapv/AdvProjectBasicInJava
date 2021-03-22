@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<p:panel id="PanelListProcesso" header="Processos Cadastros"
+	style="height:100%">
+	<h:form id="FormProcessoList" enctype="multipart/form-data">
+		<p:growl />
+		<p:toolbar style="width:99.4%" id="toolbar">
+			<p:toolbarGroup align="left">
+				<p:commandButton id="btnNovoProcessoList" icon="adicionar-icon"
+					value="Nova" action="#{processoBean.novoProcesso}" process="@this"
+					update=":FormProcessoList :FormProcessoForm"
+					oncomplete="PF('FormProcessoDialog').show()">
+				</p:commandButton>
+
+				<p:commandButton icon="editar-icon" action="#{processoBean.editar}"
+					oncomplete="if (#{processoBean.processo != null}) {PF('FormProcessoDialog').show()}"
+					update=":FormProcessoList :FormProcessoForm" />
+
+				<p:commandButton icon="excluir-icon"
+					oncomplete="if (#{processoBean.processo != null}) {PF('confirmarExclusaoDialog').show()}"
+					update=":FormProcessoList" />
+			</p:toolbarGroup>
+
+			<p:toolbarGroup align="right">
+			</p:toolbarGroup>
+		</p:toolbar>
+
+		<p:dataTable id="tabelaProcessos" widgetVar="processosTable"
+			value="#{processoBean.lazyProcessoDataTable}" var="processo"
+			paginator="true" rows="15"
+			paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			currentPageReportTemplate="Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages}"
+			sortMode="multiple"
+			tableStyleClass="table table-bordered table-hover"
+			emptyMessage="Nenhuma processo encontrada!"
+			filteredValue="#{processoBean.processosFiltrados}"
+			rowsPerPageTemplate="15, 25, 50, 100, 150, *" resizableColumns="true"
+			scrollable="true" scrollWidth="100%" liveScroll="true"
+			rowIndexVar="rowIndex"
+			rowStyleClass="#{(rowIndex mod 2) eq 0 ? 'first-row' : 'second-row'}"
+			rowKey="#{processo.processo}" selectionMode="single" reflow="true"
+			draggableColumns="true">
+
+			<p:ajax event="rowSelect" listener="#{processoBean.onRowSelect}"
+				update=":FormProcessoList:toolbar" />
+
+			<p:ajax event="rowDblselect"
+				listener="#{processoBean.onRowDblselect}"
+				oncomplete="PF('FormProcessoDialog').show()"
+				update=":FormProcessoList :FormProcessoForm" global="false" />
+
+			<f:facet name="header">
+				<h:panelGroup class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(processoBean.lazyProcessoDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="paginatorTopLeft">
+				<p:outputPanel>
+					<h:outputText value="Pesquisar:" />
+					<p:inputText id="globalFilter"
+						onkeyup="PF('processosTable').filter()" style="width:150px"
+						placeholder="Insira a palavra-chave" />
+				</p:outputPanel>
+			</f:facet>
+
+			<f:facet name="paginatorTopRight">
+				<p:commandButton icon="lupa-icon" id="optionDataTables"
+					onclick="PF('processosTable').clearFilters()"
+					update=":FormProcessoList" value="Limpar" />
+			</f:facet>
+
+			<f:facet name="paginatorBottomRight">
+				<h:panelGroup class="PanelToggle">
+					<p:commandButton id="toggler" type="button" value="Colunas"
+						icon="ui-icon-calculator" />
+					<p:columnToggler datasource="tabelaProcessos" trigger="toggler">
+						<p:ajax event="toggle" listener="#{processoBean.onToggle}" />
+					</p:columnToggler>
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="footer">
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_xls.png"
+						width="36" />
+					<p:dataExporter type="xls" target="tabelaProcessos"
+						fileName="processos" />
+				</h:commandLink>
+
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_pdf.png"
+						width="36" />
+					<p:dataExporter type="pdf" target="tabelaProcessos"
+						fileName="processos" encoding="iso-8859-1" />
+				</h:commandLink>
+
+				<h:panelGroup id="totalRegistro" class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(processoBean.lazyProcessoDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<!-- INICIO DAS COLUNAS -->
+
+			<p:column headerText="Nº Processo" sortBy="#{processo.processo}"
+				filterBy="#{processo.processo}" filterMatchMode="contains"
+				style="width:180px; white-space:normal !important;" visible="#{processoBean.listToggle[0]}">
+				<h:outputLabel value="#{processo.processo}" />
+			</p:column>
+
+			<p:column headerText="PDF / DATA CADASTRO"
+				filterBy="#{processo.arquivoEmpty}" filterMatchMode="contains"
+				style="width:250px; white-space:normal !important;" visible="#{processoBean.listToggle[1]}">
+				<f:facet name="filter">
+					<p:selectOneButton id="custom-filter-PDF"
+						onchange="PF('processosTable').filter()"
+						styleClass="custom-filter">
+
+						<f:selectItem itemLabel="All" itemValue="" />
+						<f:selectItem itemLabel="Com PDF" itemValue="true" />
+						<f:selectItem itemLabel="Sem PDF" itemValue="false" />
+
+						<f:converter converterId="javax.faces.Boolean" />
+					</p:selectOneButton>
+				</f:facet>
+				<h:outputText value="#{processo.arquivoEmpty ? '': ''}" />
+				
+				<h:panelGrid rendered="#{processo.arquivoEmpty}" columns="2"
+					style="text-align:center; margin:0; border-color: transparent;"
+					border="0">
+					
+					<h:column style="text-align:center;">
+						<p:commandButton icon="pdf-icon" alt="PDF"
+							action="#{processoBean.showPDF}"
+							onclick="this.form.target='_blank'">
+							<f:param name="processo" value="#{processo.processo}" />
+						</p:commandButton>
+					</h:column>
+					
+					<h:column style="text-align:center;">
+						<h:outputLabel value="#{processo.dataArquivo}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputLabel>
+					</h:column>
+				</h:panelGrid>
+			</p:column>
+
+			<p:column headerText="Juiz" sortBy="#{processo.juizSenteca}"
+				filterBy="#{processo.juizSenteca}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[2]}">
+				<h:outputLabel value="#{processo.juizSenteca}" />
+			</p:column>
+
+			<p:column headerText="TRT-Turma" sortBy="#{processo.trtTurma}"
+				filterBy="#{processo.trtTurma}" filterMatchMode="contains"
+				style="width:100px; white-space:normal !important; text-align:center;" visible="#{processoBean.listToggle[3]}">
+				<h:outputLabel value="#{processo.trtTurma}" />
+			</p:column>
+
+			<p:column headerText="TRT-Relator" sortBy="#{processo.trtRelator}"
+				filterBy="#{processo.trtRelator}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[4]}">
+				<h:outputLabel value="#{processo.trtRelator}" />
+			</p:column>
+
+			<p:column headerText="TST-Turma" sortBy="#{processo.tstTurma}"
+				filterBy="#{processo.tstTurma}" filterMatchMode="contains"
+				style="width:100px; white-space:normal !important; text-align:center;" visible="#{processoBean.listToggle[5]}">
+				<h:outputLabel value="#{processo.tstTurma}" />
+			</p:column>
+
+			<p:column headerText="TST-Relator" sortBy="#{processo.tstRelator}"
+				filterBy="#{processo.tstRelator}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[6]}">
+				<h:outputLabel value="#{processo.tstRelator}" />
+			</p:column>
+
+			<p:column headerText="Autor" sortBy="#{processo.autores}"
+				filterBy="#{processo.autores}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[7]}">
+				<h:outputLabel value="#{processo.autores}"
+					styleClass="ui-selectcheckboxmenu-token-label" />
+			</p:column>
+
+			<p:column headerText="Advogado Autor" sortBy="#{processo.advAutor}"
+				filterBy="#{processo.advAutor}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[8]}">
+				<h:outputLabel value="#{processo.advAutor}"
+					styleClass="ui-selectcheckboxmenu-token-label" />
+			</p:column>
+
+			<p:column headerText="Reu" sortBy="#{processo.reus}"
+				filterBy="#{processo.reus}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[9]}">
+				<h:outputLabel value="#{processo.reus}"
+					styleClass="ui-selectcheckboxmenu-token-label" />
+			</p:column>
+
+			<p:column headerText="Advogado Reu" sortBy="#{processo.advReu}"
+				filterBy="#{processo.advReu}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[10]}">
+				<h:outputLabel value="#{processo.advReu}"
+					styleClass="ui-selectcheckboxmenu-token-label" />
+			</p:column>
+
+			<p:column headerText="Fases" sortBy="#{processo.fases}"
+				filterBy="#{processo.fases}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[11]}">
+				<h:outputLabel value="#{processo.fases}"
+					styleClass="ui-selectcheckboxmenu-token-label" />
+			</p:column>
+
+			<p:column headerText="Materias" sortBy="#{processo.materias}"
+				filterBy="#{processo.materias}" filterMatchMode="contains"
+				style="width:300px; white-space:normal !important;" visible="#{processoBean.listToggle[12]}">
+				<h:outputLabel value="#{processo.materias}"
+					styleClass="ui-selectcheckboxmenu-token-label" />
+			</p:column>
+
+			<p:column headerText="Cadastrado Por" sortBy="#{processo.cadastradoPor}"
+				filterBy="#{processo.cadastradoPor}" filterMatchMode="contains"
+				style="width:150px; white-space:normal !important; text-align:center;" visible="#{processoBean.listToggle[13]}">
+				<h:outputLabel value="#{processo.cadastradoPor}" />
+			</p:column>
+
+			<p:column headerText="Cadastrado Data"
+				sortBy="#{processo.dataCadastro}"
+				filterBy="#{processo.dataCadastro}" filterMatchMode="contains"
+				style="width:150px; white-space:normal !important; text-align:center;" visible="#{processoBean.listToggle[14]}">
+				<h:outputLabel value="#{processo.dataCadastro}">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</h:outputLabel>
+			</p:column>
+
+			<!-- FIM DAS COLUNAS -->
+		</p:dataTable>
+
+		<p:confirmDialog
+			message="Deseja realmente excluir o Processo #{processoBean.processo.processo}?"
+			widgetVar="confirmarExclusaoDialog">
+			<p:commandButton value="Sim"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				action="#{processoBean.deletar}" update="tabelaProcessos" />
+
+			<p:commandButton value="Não" action="#{processoBean.processoNulo}"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				update="tabelaProcessos" />
+		</p:confirmDialog>
+	</h:form>
+</p:panel>
+<style>
+.ui-datatable-header {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-header>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-footer>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer>.PanelToggle {
+	right: 40px;
+	position: absolute;
+}
+
+#toggle {
+	background-color: #666;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+	document.getElementById("custom-filter-PDF:0").checked = true;
+}
+</script>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<p:dialog id="DialogProcessoForm" widgetVar="FormProcessoDialog"
+	showEffect="clip" hideEffect="explode" header="Cadastro de Processo"
+	height="600" width="800" closable="false" closeOnEscape="true"
+	resizable="false" dynamic="true" modal="true" position="center"
+	appendToBody="true">
+
+	<h:form id="FormProcessoForm" enctype="multipart/form-data">
+		<p:toolbar id="processoMenuFormulario" style="width:99%">
+			<f:facet name="left">
+				<p:commandButton id="btnNovoProcessoForm" icon="adicionar-icon"
+					value="Novo" action="#{processoBean.novoProcesso}" process="@this"
+					update=":FormProcessoForm :FormProcessoList"
+					style="margin-right:10px;" />
+
+				<p:commandButton id="btnSalvarProcesso" icon="salvar-icon"
+					value="Salvar" action="#{processoBean.salvar}"
+					oncomplete="if(!args.validationFailed) PF('FormProcessoDialog').hide()"
+					update=":FormProcessoList" style="margin-right:10px;" />
+
+				<p:commandButton id="btnNovoProcessoCancelar" icon="cancelar-icon"
+					value="Cancelar" action="#{processoBean.novoProcessoCancelar}"
+					oncomplete="PF('FormProcessoDialog').hide()" process="@this"
+					update=":FormProcessoForm :FormProcessoList" />
+			</f:facet>
+		</p:toolbar>
+		<p:panel header="Dados do Processo">
+			<h:panelGrid id="GridFormProcesso" columns="2" style="width:99.8%"
+				rendered="#{processoBean.processo != null}">
+
+				<h:outputLabel value="Processo: " />
+				<p:inputText value="#{processoBean.processo.processo}" size="50" />
+
+				<h:outputLabel value="Arquiv PDF: " />
+				<h:panelGroup>
+					<p:fileUpload id="uploadPDF" auto="true" mode="advanced"
+						fileUploadListener="#{processoBean.handleFileUpload}"
+						label="Selecione o PDF!" allowTypes="/(\.|\/)(pdf)$/"
+						invalidFileMessage="Formato de arquivo invalido!"
+						fileLimitMessage="Permitido apenas 1 Arquivo!" update="uploadPDF">
+
+						<p:panelGrid rendered="#{processoBean.processo.arquivoEmpty}"
+							columns="3" style="text-align:center; width:100%;">
+							<p:column style="text-align:center;">
+								<p:commandButton icon="pdf-icon" alt="PDF"
+									action="#{processoBean.showPDF}"
+									onclick="this.form.target='_blank'">
+									<f:param name="processo" value="#{processoBean.processo.processo}" />
+								</p:commandButton>
+							</p:column>
+							<p:column style="text-align:center;">
+								<h:outputLabel value="#{processoBean.processo.dataArquivo}">
+									<f:convertDateTime pattern="dd/MM/yyyy" />
+								</h:outputLabel>
+							</p:column>
+							<p:column style="text-align:center;">
+								<p:commandButton icon="excluir-icon" alt="EXCLUIR"
+									action="#{processoBean.exluirPDF}" update="uploadPDF" />
+							</p:column>
+						</p:panelGrid>
+					</p:fileUpload>
+				</h:panelGroup>
+
+				<h:outputLabel value="Juiz da Senteca: " />
+				<p:autoComplete value="#{processoBean.processo.juizSenteca}"
+					completeMethod="#{processoBean.listJuizes}" rendered="true" />
+
+				<h:outputLabel value="TRT Turma: " />
+				<p:spinner value="#{processoBean.processo.trtTurma}" min="0"
+					rendered="true" />
+
+				<h:outputLabel value="TRT Relator: " />
+				<p:autoComplete value="#{processoBean.processo.trtRelator}"
+					completeMethod="#{processoBean.listTrtRelator}" rendered="true" />
+
+				<h:outputLabel value="TST Turma: " />
+				<p:spinner value="#{processoBean.processo.tstTurma}" min="0"
+					rendered="true" />
+
+				<h:outputLabel value="TST Relator: " />
+				<p:autoComplete value="#{processoBean.processo.tstRelator}"
+					completeMethod="#{processoBean.listTstRelator}" rendered="true" />
+
+				<p:outputLabel value="Advogados dos Autores:" />
+				<p:autoComplete multiple="true" selectLimit="1"
+					value="#{processoBean.processo.advAutor}"
+					completeMethod="#{processoBean.listAdvogados}" var="advogado"
+					itemLabel="#{advogado.nome}" itemValue="#{advogado}"
+					converter="advogadoConverter" rendered="true">
+
+					<p:column headerText="OAB">
+						<h:outputLabel value="#{advogado.identidade}" />
+					</p:column>
+
+					<p:column headerText="Advoado">
+						<h:outputLabel value="#{advogado.nome}" />
+					</p:column>
+				</p:autoComplete>
+
+				<p:outputLabel value="Autores:" />
+				<p:autoComplete multiple="true" selectLimit="1"
+					value="#{processoBean.processo.autores}"
+					completeMethod="#{processoBean.listPessoaFisicas}"
+					var="pessoaFisica" itemLabel="#{pessoaFisica.nome}"
+					itemValue="#{pessoaFisica}" converter="pessoaFisicaConverter"
+					rendered="true">
+					<p:column headerText="CPF:">
+						<h:outputLabel value="#{pessoaFisica.documento}" />
+					</p:column>
+
+					<p:column headerText="Nome:">
+						<h:outputLabel value="#{pessoaFisica.nome}" />
+					</p:column>
+				</p:autoComplete>
+
+				<p:outputLabel value="Advogados dos Reus:" />
+				<p:autoComplete multiple="true" selectLimit="1"
+					value="#{processoBean.processo.advReu}"
+					completeMethod="#{processoBean.listAdvogados}" var="advogado"
+					itemLabel="#{advogado.nome}" itemValue="#{advogado}"
+					converter="advogadoConverter" rendered="true">
+
+					<p:column headerText="OAB">
+						<h:outputLabel value="#{advogado.identidade}" />
+					</p:column>
+
+					<p:column headerText="Advoado">
+						<h:outputLabel value="#{advogado.nome}" />
+					</p:column>
+				</p:autoComplete>
+
+				<p:outputLabel value="Reus:" />
+				<p:autoComplete multiple="true" selectLimit="1"
+					value="#{processoBean.processo.reus}"
+					completeMethod="#{processoBean.listPessoaJuridicas}"
+					var="pessoaJuridica" itemLabel="#{pessoaJuridica.nome}"
+					itemValue="#{pessoaJuridica}" converter="pessoaJuridicaConverter"
+					rendered="true">
+					<p:column headerText="CNPJ:">
+						<h:outputLabel value="#{pessoaJuridica.documento}" />
+					</p:column>
+					<p:column headerText="Nome:">
+						<h:outputLabel value="#{pessoaJuridica.nome}" />
+					</p:column>
+				</p:autoComplete>
+
+				<p:outputLabel value="Materias:" />
+				<p:autoComplete multiple="true"
+					value="#{processoBean.processo.materias}"
+					completeMethod="#{processoBean.listMaterias}" var="materia"
+					itemLabel="#{materia.nome}" itemValue="#{materia}"
+					converter="materiaConverter" rendered="true">
+					<p:column headerText="Nome:">
+						<h:outputLabel value="#{materia.nome}" />
+					</p:column>
+					<p:column headerText="Sigla:">
+						<h:outputLabel value="#{materia.sigla}" />
+					</p:column>
+				</p:autoComplete>
+
+				<p:outputLabel value="Fases:" />
+				<p:autoComplete multiple="true"
+					value="#{processoBean.processo.fases}"
+					completeMethod="#{processoBean.listFases}" var="fase"
+					itemLabel="#{fase.nome}" itemValue="#{fase}"
+					converter="faseConverter" rendered="true">
+					<p:column headerText="Nome:">
+						<h:outputLabel value="#{fase.nome}" />
+					</p:column>
+					<p:column headerText="Sigla:">
+						<h:outputLabel value="#{fase.sigla}" />
+					</p:column>
+				</p:autoComplete>
+
+			</h:panelGrid>
+		</p:panel>
+	</h:form>
+</p:dialog>
+</html>

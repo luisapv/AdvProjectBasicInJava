@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pretty-config xmlns="http://ocpsoft.com/prettyfaces/3.3.3"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ocpsoft.com/prettyfaces/3.3.3
+   http://ocpsoft.com/xml/ns/prettyfaces/ocpsoft-pretty-faces-3.3.3.xsd">
+
+	<url-mapping id="login">
+		<pattern value="/login/" />
+		<view-id value="/pages/login/login.jsf" />
+	</url-mapping>
+
+	<url-mapping id="loginCadastro">
+		<pattern value="/login/cadastro/" />
+		<view-id value="/pages/login/login_wrapper.jsf" />
+		<action onPostback="false">#{loginBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="advogado">
+		<pattern value="/advogado/" />
+		<view-id value="/pages/advogado/advogado_wrapper.jsf" />
+		<action onPostback="false">#{advogadoBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="fase">
+		<pattern value="/fase/" />
+		<view-id value="/pages/fase/fase_wrapper.jsf" />
+		<action onPostback="false">#{faseBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="materia">
+		<pattern value="/materia/" />
+		<view-id value="/pages/materia/materia_wrapper.jsf" />
+		<action onPostback="false">#{materiaBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="pessoaFisica">
+		<pattern value="/pessoaFisica/" />
+		<view-id value="/pages/pessoaFisica/pessoaFisica_wrapper.jsf" />
+		<action onPostback="false">#{pessoaFisicaBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="pessoaJuridica">
+		<pattern value="/pessoaJuridica/" />
+		<view-id value="/pages/pessoaJuridica/pessoaJuridica_wrapper.jsf" />
+		<action onPostback="false">#{pessoaJuridicaBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="processo">
+		<pattern value="/processo/" />
+		<view-id value="/pages/processo/processo_wrapper.jsf" />
+		<action onPostback="false">#{processoBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="endereco">
+		<pattern value="/endereco/" />
+		<view-id value="/pages/endereco/endereco_wrapper.jsf" />
+		<action onPostback="false">#{enderecoBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="enderecoCep">
+		<pattern value="/cep/" />
+		<view-id value="/pages/endereco/cep/cep_wrapper.jsf" />
+		<action onPostback="false">#{cepBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="enderecoCidade">
+		<pattern value="/endereco/cidade/" />
+		<view-id value="/pages/endereco/cidade/cidade_wrapper.jsf" />
+		<action onPostback="false">#{cidadeBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="enderecoBairro">
+		<pattern value="/endereco/bairro/" />
+		<view-id value="/pages/endereco/bairro/bairro_wrapper.jsf" />
+		<action onPostback="false">#{bairroBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="enderecoLogradouro">
+		<pattern value="/endereco/logradouro/" />
+		<view-id value="/pages/endereco/logradouro/logradouro_wrapper.jsf" />
+		<action onPostback="false">#{logradouroBean.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="viewPDF">
+		<pattern value="/showPDF/" />
+		<view-id value="/pages/processo/vusalizarPDF.jsf" />
+		<action>#{viewPDF.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="viewPDF-Paramter">
+		<pattern value="/showPDF/#{ pdf : viewPDF.processoString }/" />
+		<view-id value="/pages/processo/vusalizarPDF.jsf" />
+		<action>#{viewPDF.iniciarBean}</action>
+	</url-mapping>
+
+	<url-mapping id="viewPDF">
+		<pattern value="/showMalaDireta/" />
+		<view-id value="/pages/processo/vusalizarPDF.jsf" />
+		<action>#{viewPDF.malaDiretaBean}</action>
+	</url-mapping>
+
+	<url-mapping id="AntigoBD">
+		<pattern value="/importAntigoBD/" />
+		<view-id value="/pages/importAntigoBD/importAntigoBD.jsf" />
+	</url-mapping>
+
+
+</pretty-config>

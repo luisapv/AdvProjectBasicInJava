@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<p:dialog id="DialogLoginPerfilForm" widgetVar="FormLoginPerfilDialog"
+	showEffect="clip" hideEffect="explode"
+	header="Cadastro de Pessoa Fisica" height="600" width="800"
+	closable="false" closeOnEscape="true" resizable="false" dynamic="true"
+	modal="true" position="center" appendToBody="true">
+
+	<h:form id="FormLoginPerfilForm">
+		<p:toolbar id="loginPerfilMenuFormulario" style="width:99%">
+			<f:facet name="left">
+				<p:commandButton id="btnSalvarLoginPerfil" icon="salvar-icon"
+					value="Salvar" action="#{loginBean.salvarPerfil}"
+					oncomplete="if(!args.validationFailed) PF('FormLoginPerfilDialog').hide()"
+					update="@all"
+					style="margin-right:10px;" />
+
+				<p:commandButton id="btnNovoLoginPerfilCancelar"
+					icon="cancelar-icon" value="Cancelar"
+					action="#{loginBean.cancelarPerfil}"
+					oncomplete="PF('FormLoginPerfilDialog').hide()" process="@this"
+					update="@all" />
+			</f:facet>
+		</p:toolbar>
+		<p:tabView id="GridFormLoginPerfil">
+			<p:tab title	="Dados do Pessoa Fisica">
+				<h:panelGrid columns="2" style="width:99.8%">
+
+					<h:outputText value="Nome: " />
+					<p:inputText value="#{loginBean.loginLogado.nome}" size="50" />
+
+					<h:outputText value="Login: " />
+					<p:inputText value="#{loginBean.loginLogado.login}" size="50" />
+
+					<h:outputText value="Tema: " />
+					<p:themeSwitcher value="#{loginBean.loginLogado.tema}"
+						effect="fade" var="t">
+						<f:selectItems value="#{loginBean.temas}" var="theme"
+							itemLabel="#{theme.displayName}" temValue="#{theme}" />
+						<!-- 				<p:column> -->
+						<!-- 					<h:graphicImage -->
+						<!-- 						name="#{request.contextPath}/resources/plugin/primefaces/themes/primefaces-#{t.name}/images/icon.png" -->
+						<!-- 						alt="#{t.name}" styleClass="ui-theme" /> -->
+						<!-- 				</p:column> -->
+						<p:column>
+							<h:outputText value="#{t.displayName}" />
+						</p:column>
+						<!-- 				<p:ajax event="change" listener="#{loginBean.atualizaTema}" -->
+						<!-- 					update="@all" /> -->
+					</p:themeSwitcher>
+
+					<h:outputText value="E-Mal: " />
+					<p:inputText value="#{loginBean.loginLogado.email}" size="15" />
+
+					<h:outputText value="Local Save: " />
+					<p:inputText value="#{loginBean.loginLogado.localSave}" size="15" />
+
+					<h:outputText value="Ativado: " />
+					<p:selectBooleanCheckbox value="#{loginBean.loginLogado.ativo}" size="15" />
+
+				</h:panelGrid>
+			</p:tab>
+			<p:tab title="Endereço">
+				<h:panelGrid columns="2" style="width:99.8%" id="panelGridEndereco">
+
+					<h:outputText value="Cep: " />
+					<h:panelGroup>
+						<p:autoComplete id="cepLoginPerfil" value="#{loginBean.loginLogado.endereco.cep.cep}"
+							completeMethod="#{loginBean.onVerificaCep}" rendered="true" />
+						<p:message for="cepLoginPerfil" id="msgCep" />
+					</h:panelGroup>
+
+					<h:outputLabel value="Estado:" />
+					<p:selectOneMenu id="combo-estados"
+						value="#{loginBean.loginLogado.endereco.cep.estado}" filter="true">
+						<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+						<f:selectItems value="#{geralBean.estados}" var="estado"
+							itemLabel="#{estado}" itemValue="#{estado}" />
+						<p:ajax event="change" update="combo-cidades" />
+					</p:selectOneMenu>
+
+					<h:outputText value="Cidade: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="combo-cidades"
+							value="#{loginBean.loginLogado.endereco.cep.cidade}"
+							disabled="#{loginBean.loginLogado.endereco.cep.estado == null}"
+							filter="true" converter="cidadeConverter">
+							<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+							<f:selectItems value="#{loginBean.cidadesDoEstado}" var="cidade"
+								itemLabel="#{cidade.nome}" itemValue="#{cidade}">
+							</f:selectItems>
+							<p:ajax event="change" update="combo-bairros" />
+						</p:selectOneMenu>
+						<p:commandButton icon="atualizar-icon" update="combo-cidades" />
+					</h:panelGroup>
+
+					<h:outputText value="Bairro: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="combo-bairros"
+							value="#{loginBean.loginLogado.endereco.cep.bairro}"
+							disabled="#{loginBean.loginLogado.endereco.cep.cidade.id == null}"
+							filter="true" converter="bairroConverter">
+							<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+							<f:selectItems value="#{loginBean.bairrosDaCidade}" var="bairro"
+								itemLabel="#{bairro.nome}" itemValue="#{bairro}">
+							</f:selectItems>
+							<p:ajax event="change" update="combo-logradouros" />
+						</p:selectOneMenu>
+						<p:commandButton icon="atualizar-icon" update="combo-bairros" />
+					</h:panelGroup>
+
+					<h:outputText value="Logradouro: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="combo-logradouros"
+							value="#{loginBean.loginLogado.endereco.cep.logradouro}"
+							disabled="#{loginBean.loginLogado.endereco.cep.bairro.id == null}"
+							filter="true" converter="logradouroConverter">
+							<f:selectItem itemLabel="::Selecione::" itemValue="#{null}" />
+							<f:selectItems value="#{loginBean.logradourosDoBairro}"
+								var="logradouro" itemLabel="#{logradouro.logradouroCompleto}"
+								itemValue="#{logradouro}" />
+						</p:selectOneMenu>
+						<p:commandButton icon="atualizar-icon" update="combo-logradouros" />
+					</h:panelGroup>
+
+					<h:outputText value="Número: " />
+					<p:inputText value="#{loginBean.loginLogado.endereco.numero}"
+						size="50" />
+
+					<h:outputText value="Complemento: " />
+					<p:inputText value="#{loginBean.loginLogado.endereco.complemento}"
+						size="50" />
+
+					<h:outputLabel value="Referencia:" />
+					<p:inputTextarea
+						value="#{loginBean.loginLogado.endereco.referencia}" cols="50"
+						rows="10" />
+
+				</h:panelGrid>
+			</p:tab>
+		</p:tabView>
+	</h:form>
+</p:dialog>
+</html>

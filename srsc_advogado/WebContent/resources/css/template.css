@@ -1,0 +1,41 @@
+.salvar-icon {
+	background: url("../imagens/icons/salvar.png") !important;
+}
+
+.voltar-icon {
+	background: url("../imagens/icons/voltar.png") !important;
+}
+
+.adicionar-icon {
+	background: url("../imagens/icons/adicionar.png") !important;
+}
+
+.atualizar-icon {
+	background: url("../imagens/icons/atualizar.png") !important;
+}
+
+.editar-icon {
+	background: url("../imagens/icons/editar.png") !important;
+}
+
+.excluir-icon {
+	background: url("../imagens/icons/excluir.png") !important;
+}
+
+.cursos-icon {
+	background: url("../imagens/icons/cursos.png") !important;
+}
+
+.cancelar-icon {
+	background: url("../imagens/icons/cancelar.png") !important;
+}
+
+.pdf-icon {
+	background: url("../imagens/icons/pdf.png") !important;
+}
+
+#menuItemUser {
+	margin: 0px 10px;
+	float: right;
+	right: 10px;
+}

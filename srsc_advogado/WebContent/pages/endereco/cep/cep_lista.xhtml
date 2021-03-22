@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<p:panel id="PanelListCep" header="Ceps Cadastras" style="height:100%">
+	<h:form id="FormCepList">
+		<p:growl />
+		<p:toolbar style="width:99.4%" id="toolbar">
+			<p:toolbarGroup align="left">
+				<p:commandButton id="btnNovoCepList" icon="adicionar-icon"
+					value="Nova" action="#{cepBean.novoCep}" process="@this"
+					update=":FormCepList :FormCepForm"
+					oncomplete="PF('FormCepDialog').show()">
+				</p:commandButton>
+
+				<p:commandButton icon="editar-icon" action="#{cepBean.editar}"
+					oncomplete="if (#{cepBean.cep != null}) {PF('FormCepDialog').show()}"
+					update=":FormCepList :FormCepForm" />
+
+				<p:commandButton icon="excluir-icon"
+					oncomplete="if (#{cepBean.cep != null}) {PF('confirmarExclusaoDialog').show()}"
+					update=":FormCepList" />
+			</p:toolbarGroup>
+
+			<p:toolbarGroup align="right">
+			</p:toolbarGroup>
+		</p:toolbar>
+
+		<p:dataTable id="tabelaCeps" widgetVar="cepsTable"
+			value="#{cepBean.lazyCepDataTable}" var="cep" paginator="true"
+			rows="15"
+			paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			currentPageReportTemplate="Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages}"
+			sortMode="multiple"
+			tableStyleClass="table table-bordered table-hover"
+			emptyMessage="Nenhuma cep encontrada!"
+			filteredValue="#{cepBean.cepsFiltrados}"
+			rowsPerPageTemplate="15, 25, 50, 100, 150, *" resizableColumns="true"
+			scrollable="true" scrollWidth="100%" liveScroll="true"
+			rowIndexVar="rowIndex"
+			rowStyleClass="#{(rowIndex mod 2) eq 0 ? 'first-row' : 'second-row'}"
+			rowKey="#{cep.id}"
+			selectionMode="single" reflow="true" draggableColumns="true">
+
+			<p:ajax event="rowSelect" listener="#{cepBean.onRowSelect}" update=":FormCepList:toolbar" />
+
+			<p:ajax event="rowDblselect"
+				listener="#{cepBean.onRowDblselect}"
+				oncomplete="PF('FormCepDialog').show()"
+				update=":FormCepList :FormCepForm" global="false" />
+
+			<f:facet name="header">
+				<h:panelGroup class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(cepBean.lazyCepDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="paginatorTopLeft">
+				<p:outputPanel>
+					<h:outputText value="Pesquisar:" />
+					<p:inputText id="globalFilter"
+						onkeyup="PF('cepsTable').filter()" style="width:150px"
+						placeholder="Insira a palavra-chave" />
+				</p:outputPanel>
+			</f:facet>
+
+			<f:facet name="paginatorTopRight">
+				<p:commandButton icon="lupa-icon" id="optionDataTables"
+					onclick="PF('cepsTable').clearFilters()"
+					update=":FormCepList" value="Limpar" />
+			</f:facet>
+
+			<f:facet name="paginatorBottomRight">
+				<h:panelGroup class="PanelToggle">
+					<p:commandButton id="toggler" type="button" value="Colunas"
+						icon="ui-icon-calculator" />
+					<p:columnToggler datasource="tabelaCeps" trigger="toggler">
+						<p:ajax event="toggle" listener="#{cepBean.onToggle}" />
+					</p:columnToggler>
+				</h:panelGroup>
+			</f:facet>
+
+			<f:facet name="footer">
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_xls.png"
+						width="36" />
+					<p:dataExporter type="xls" target="tabelaCeps"
+						fileName="ceps" />
+				</h:commandLink>
+
+				<h:commandLink class="export"
+					style="margin-left:10px; margin-right:10px;">
+					<p:graphicImage library="imagens/png" name="exportar_pdf.png"
+						width="36" />
+					<p:dataExporter type="pdf" target="tabelaCeps"
+						fileName="ceps" encoding="iso-8859-1" />
+				</h:commandLink>
+
+				<h:panelGroup id="totalRegistro" class="totalRegistro">
+					<h:outputLabel
+						value="Registros Totais: #{fn:length(cepBean.lazyCepDataTable)}" />
+				</h:panelGroup>
+			</f:facet>
+
+			<!-- INICIO DAS COLUNAS -->
+
+			<p:column headerText="Cep" sortBy="#{cep.cep}"
+				filterBy="#{cep.cep}" filterMatchMode="contains"
+				style="width:300px;" visible="#{cepBean.listToggle[0]}">
+				<h:outputLabel value="#{cep.cep}" />
+			</p:column>
+
+			<p:column headerText="UF" sortBy="#{cep.uf}"
+				filterBy="#{cep.uf}" filterMatchMode="contains"
+				style="width:300px;" visible="#{cepBean.listToggle[1]}">
+				<h:outputLabel value="#{cep.uf}" />
+			</p:column>
+
+			<p:column headerText="Cidade" sortBy="#{cep.cidade}"
+				filterBy="#{cep.cidade}" filterMatchMode="contains"
+				style="width:300px;" visible="#{cepBean.listToggle[1]}">
+				<h:outputLabel value="#{cep.cidade}" />
+			</p:column>
+
+			<p:column headerText="Bairro" sortBy="#{cep.bairro}"
+				filterBy="#{cep.bairro}" filterMatchMode="contains"
+				style="width:300px;" visible="#{cepBean.listToggle[1]}">
+				<h:outputLabel value="#{cep.bairro}" />
+			</p:column>
+
+			<p:column headerText="Logradouro" sortBy="#{cep.logradouro}"
+				filterBy="#{cep.logradouro}" filterMatchMode="contains"
+				style="width:300px;" visible="#{cepBean.listToggle[1]}">
+				<h:outputLabel value="#{cep.logradouro}" />
+			</p:column>
+			
+			<!-- FIM DAS COLUNAS -->
+		</p:dataTable>
+
+		<p:confirmDialog
+			message="Deseja realmente excluir a cep #{cepBean.cep.cep}?"
+			widgetVar="confirmarExclusaoDialog">
+			<p:commandButton value="Sim"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				action="#{cepBean.deletar}" update="tabelaCeps" />
+
+			<p:commandButton value="Não" action="#{cepBean.cepNulo}"
+				oncomplete="PF('confirmarExclusaoDialog').hide();"
+				update="tabelaCeps" />
+		</p:confirmDialog>
+	</h:form>
+</p:panel>
+<style>
+.ui-datatable-header {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-header>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer {
+	display: flex;
+	align-items: center;
+	justify-content: initial;
+}
+
+.ui-datatable-footer>.totalRegistro {
+	margin: 0 auto;
+}
+
+.ui-datatable-footer>.PanelToggle {
+	right: 40px;
+	position: absolute;
+}
+
+#toggle {
+	background-color: #666;
+}
+</style>
+</html>
